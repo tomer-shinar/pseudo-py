@@ -27,7 +27,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "bootstrap": "^4.4.1",
-    "jquery": "^1.9.1",
+    "jquery": "^3.5.1",
     "reactstrap": "^8.4.1"
   }
 }
