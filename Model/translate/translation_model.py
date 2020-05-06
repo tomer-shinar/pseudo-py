@@ -31,7 +31,8 @@ class TranslationModel(AbstractModel):
         commands = input_data.split("\n")
         translations = []
         for command in commands:
-            translations.append((command, self.translate(command)))
+            translations.append([command, self.translate(command)])
+            # using list of 2 items instead of tuple to allow use in js
         return translations
 
     def translate(self, command):

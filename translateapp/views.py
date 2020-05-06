@@ -12,6 +12,5 @@ import json
 @api_view(['POST'])
 def translate(request):
     translator = Model.translate.TranslationModeBuilder().load(os.path.join("saved-files"))
-    translation = translator.evaluate(request.data)
-    print(translation)
+    translation = translator.evaluate(request.data["pseudo"])
     return Response(json.dumps(translation))
