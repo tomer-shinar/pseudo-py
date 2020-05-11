@@ -2,8 +2,8 @@ djangorestframework
 nltk
 tensorflow == 2.1.0
 keras
-numpy == 1.18.3
+numpy == 1.18.4
 bidict
 autopep8
-django == 3.0.5
+django == 3.0.6
 sklearn_crfsuite

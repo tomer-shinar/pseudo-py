@@ -1,6 +1,7 @@
 from Model.database import DatasetLoader
 from Model.translate import *
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def g():
     dataset = DatasetLoader().load()

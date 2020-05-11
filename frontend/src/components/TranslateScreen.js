@@ -10,7 +10,7 @@ export class TranslateScreen extends React.Component {
         super(props);
         this.state = {
             pseudo: "",
-            translation: [],
+            translation: [[]],
             currentlyTranslating: false
         };
         this.handleTranslate = this.handleTranslate.bind(this);
@@ -26,17 +26,22 @@ export class TranslateScreen extends React.Component {
         this.setState({currentlyTranslating: true});
         e.preventDefault();
         axios.post(translateUrl, {"pseudo": this.state.pseudo}).then((response) => {
-            this.setState({translation: response.data, currentlyTranslating: false});
+            this.setState({translation: JSON.parse(response.data)});
         });
     }
     render() {
         return (
         <div>
-            <div style={{float:'left'}}>
+            <div style={{display:'flex'}}>
                 <PseudoField onChange={this.handleChange}/>
-                <PythonField commands={this.state.translation.map((tuple)=>tuple[0])}/>
+                <PythonField commands={this.state.translation.map((tuple)=>tuple[1])}/>
             </div>
-            <button onClick={this.handleTranslate} title="Translate"/>
+            <div style={{display: "flex", justifyContent: "center", alignItems: "center", paddingTop:50}}>
+                <button onClick={this.handleTranslate} title="Translate"
+                        style={{width: 300, height: 100, paddingLef: 500, backgroundColor: "#00be00"}}>
+                    <div style={{ fontSize: 40 }}>Translate</div>
+                </button>
+            </div>
         </div>);
     }
 }

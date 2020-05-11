@@ -57,14 +57,10 @@ class TranslationModel(AbstractModel):
             generic_pseudo = [replacements[t] if t in replacements.keys() else t for t in tokens]
             generic_python = self.g2g_model.evaluate(generic_pseudo)
             python_tokens = [replacements.invers[t] if t in replacements.values() else t for t in generic_python]
-            python_code = " ".join(python_tokens)
-            try:
-                ast.parse(python_code)
-            except:
-                # result is not python code
-                raise TranslationException
+            python_code = "".join(python_tokens)
+            ast.parse(python_code)
             return SPACES_TAB * tabs + autopep8.fix_code(python_code)
-        except TranslationException:
+        except (TranslationException, SyntaxError):
             return original_command
 
     @staticmethod

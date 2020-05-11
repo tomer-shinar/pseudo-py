@@ -17,12 +17,13 @@ export class PseudoField extends React.Component {
 
   render() {
     return (
-      <div>
-        <h3>
+      <div  style={{width: "95%", paddingLeft: 50, paddingRight:50}}>
+        <h3 style={{paddingLeft: 10}}>
           Pseudo code:
         </h3>
-        <textarea value={this.state.value} onChange={this.handleChange} style={{width:'50%', resize: "none"}}
-                  rows="30"/>
+        <textarea value={this.state.value} onChange={this.handleChange} style={{width:'100%', resize: "none",
+          border: '2px solid black'}}
+                  rows="35"/>
       </div>
     );
   }
