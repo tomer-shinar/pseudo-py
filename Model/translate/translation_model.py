@@ -58,10 +58,28 @@ class TranslationModel(AbstractModel):
             generic_python = self.g2g_model.evaluate(generic_pseudo)
             python_tokens = [replacements.invers[t] if t in replacements.values() else t for t in generic_python]
             python_code = "".join(python_tokens)
-            ast.parse(python_code)
+            if not self.is_valid(python_code):
+                raise TranslationException("wrong syntax for generated python code")
             return SPACES_TAB * tabs + autopep8.fix_code(python_code)
-        except (TranslationException, SyntaxError):
+        except TranslationException:
             return original_command
+
+    @staticmethod
+    def is_valid(python_code):
+        """
+        check if the python code follows syntax rules
+        :param python_code: python code
+        :return: true if legal python code
+        """
+        try:
+            ast.parse(python_code)
+            return True  # parse succeed
+        except SyntaxError:
+            try:
+                ast.parse(python_code + "\n" + SPACES_TAB*4 + "pass")
+                return True  # parse succeed (there should be continue)
+            except SyntaxError:
+                return False
 
     @staticmethod
     def split_by_strings(command):
