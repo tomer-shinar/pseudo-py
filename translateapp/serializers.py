@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework_jwt.settings import api_settings
-from .models import AppUser
+from .models import AppUser, VerificationCode
+import datetime
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -25,7 +26,10 @@ class UserSerializerWithToken(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
-        instance = self.Meta.model(**validated_data)
+        # todo email verification
+        verification_code = VerificationCode(code=0, expiration=datetime.datetime.now())
+        verification_code.save()
+        instance = self.Meta.model(verification_code=verification_code, status="verified", **validated_data)
         if password is not None:
             instance.set_password(password)
         instance.save()

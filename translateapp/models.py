@@ -35,7 +35,7 @@ class AppUser(AbstractUser):
     ]
     email = models.EmailField(name="email", unique=True)
     status = models.CharField(max_length=32, choices=STATUS, default="unverified", name="status")
-    verification_code = models.OneToOneField(VerificationCode, on_delete=models.CASCADE)
+    verification_code = models.OneToOneField(VerificationCode, on_delete=models.CASCADE, blank=True)
 
     def verify(self, verification_code):
         """
