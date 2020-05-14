@@ -4,15 +4,18 @@ from nltk.tag.util import untag
 from sklearn_crfsuite import CRF
 import pickle
 
+from Model.translate.pos_tagging import features
+
 
 def transform_to_dataset(tagged_sentences):
     """
     transform list of tagged sentences to list of untagged sentences and list of tags
     :param tagged_sentences: list of sentences, each contains tuples of (word, tag)
     :return: list of sentences, list of sentences tags
+    the wights are currently ignored but still maintained
     """
     X, y = [], []
-    for tagged in tagged_sentences:
+    for tagged, weight in tagged_sentences:
         X.append([features(untag(tagged), index) for index in range(len(tagged))])
         y.append([tag for _, tag in tagged])
     return X, y
