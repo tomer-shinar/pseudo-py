@@ -3,7 +3,7 @@ import json
 
 from .models import G2GSuggestion, PosSuggestion
 from django.db import models
-from Model.translate import TranslationModel
+from Model.translate import *
 import ast
 
 
@@ -42,10 +42,10 @@ class DataSetManager:
         for (pseudo1, down_python), (pseudo2, up_python) in zip(origin, suggestion):
             pseudo1 = pseudo1.strip(" ")
             pseudo2 = pseudo1.strip(" ")
-            up_python = up_python.strip(" ")
-            down_python = down_python.strip(" ")
+            up_python = remove_tabs(up_python)
+            down_python = remove_tabs(down_python)
 
-            if pseudo1 != pseudo2 or TranslationModel.is_valid(up_python):  # wrong input
+            if pseudo1 != pseudo2 or not TranslationModel.is_valid(up_python):  # wrong input
                 continue
             if down_python == up_python: # user liked the translation
                 DataSetManager.up_vote(pseudo1, up_python, user)
@@ -170,4 +170,14 @@ class DataSetManager:
         python = [replacements[tok] if tok in replacements.keys() else tok for tok in python]
         return pseudo, python, json.dumps(pos_sample)
 
+
+def remove_tabs(code):
+    """
+    remove the same amount of tabs from each line
+    :param code:
+    :return: the new code
+    """
+    lines = code.split("\n")
+    tabs = count_on_start(lines[0], TAB)
+    return [line[tabs*4:] for line in lines]
 

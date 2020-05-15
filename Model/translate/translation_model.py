@@ -4,10 +4,23 @@ import re
 import autopep8
 import ast
 
-CODE_VERSION = 1
+CODE_VERSION = 2
 
-TAB = "\t"
-SPACES_TAB = " " * 4
+TAB = " " * 4
+
+
+def count_on_start(string, sub_string):
+    """
+    cont how many times substring appears in the begining of string
+    :param string:
+    :param sub_string:
+    :return: the count
+    """
+    count = 0
+    while string.starts_with(sub_string):
+        count += 1
+        string = string[len(sub_string):]
+    return count
 
 
 class TranslationModel(AbstractModel):
@@ -43,11 +56,10 @@ class TranslationModel(AbstractModel):
         """
         original_command = command
         try:
-            # remove tabs from the beginning and counts them
-            tabs = 0
-            while command.startswith(TAB) or command.startswith(SPACES_TAB):
-                tabs += 1
-                command = command[1 if command.startswith(TAB) else 4:]
+            # remove tabs from the beginning of the first line and counts them
+            tabs = count_on_start(command, TAB)
+            command = command[tabs*4:]
+
             command_parts = self.split_by_strings(command)
             tokens = sum([self.tokenize(part) for part in command_parts], [])  # produce list of tokens
             if not tokens:
@@ -60,9 +72,19 @@ class TranslationModel(AbstractModel):
             python_code = "".join(python_tokens)
             if not self.is_valid(python_code):
                 raise TranslationException("wrong syntax for generated python code")
-            return SPACES_TAB * tabs + autopep8.fix_code(python_code)
+            return self.add_tabs(autopep8.fix_code(python_code), tabs)
         except TranslationException:
             return original_command
+
+    @staticmethod
+    def add_tabs(code, count):
+        """
+        add the tabs to the beginning of each line
+        :param code: the code without tabs
+        :param count: the number of tabs
+        :return: the new code
+        """
+        return "\n".join([TAB*count + line for line in code.split('\n')])
 
     @staticmethod
     def is_valid(python_code):
@@ -76,10 +98,22 @@ class TranslationModel(AbstractModel):
             return True  # parse succeed
         except SyntaxError:
             try:
-                ast.parse(python_code + "\n" + SPACES_TAB*4 + "pass")
+                ast.parse(TranslationModel.add_pass(python_code))
                 return True  # parse succeed (there should be continue)
             except SyntaxError:
                 return False
+
+    @staticmethod
+    def add_pass(code):
+        """
+        add pass to the last line of the code with the right amount of tabs
+        :param code: the code need pass
+        :return: new code
+        """
+        lines = code.split("\n")
+        tabs = count_on_start(lines[-1], TAB)
+        lines.append(TAB * (tabs + 1) + "pass")
+        return "\n".join(lines)
 
     @staticmethod
     def split_by_strings(command):
