@@ -38,4 +38,5 @@ class UserList(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        error_messages = [str(err) for val in serializer.errors.values() for err in val]
+        return Response("\n".join(error_messages), status=status.HTTP_400_BAD_REQUEST)

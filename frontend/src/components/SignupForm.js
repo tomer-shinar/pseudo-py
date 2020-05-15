@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import axios from "axios";
 
 export class SignupForm extends React.Component {
 
@@ -8,9 +8,11 @@ export class SignupForm extends React.Component {
         this.state = {
             username: '',
             email: '',
-            password: ''
+            password: '',
+            err_mess: ''
         };
         this.handle_change = this.handle_change.bind(this);
+        this.handle_signup = this.handle_signup.bind(this);
     }
 
   handle_change(e) {
@@ -23,10 +25,35 @@ export class SignupForm extends React.Component {
     });
   }
 
+  handle_signup(e) {
+    e.preventDefault();
+      let data = {
+          username: this.state.username,
+          password: this.state.password,
+          email: this.state.email
+      };
+    axios({
+        url: '/users/',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: data
+    })
+      .then(response => {
+          localStorage.setItem('token', response.data.token);
+          this.props.notify_signup(this.state.username);
+      })
+      .catch(error => {
+          console.log(JSON.stringify(error.response.data));
+          this.setState({err_mess: error.response.data});
+      });
+  }
+
   render() {
       return (
           <div>
-              <form onSubmit={e => this.props.handle_signup(e, this.state)}>
+              <form onSubmit={this.handle_signup}>
                 <h4>Sign Up</h4>
                 <label htmlFor="username">Username</label>
                 <input
@@ -49,18 +76,19 @@ export class SignupForm extends React.Component {
                   value={this.state.password}
                   onChange={this.handle_change}
                 />
-                <input type="submit" />
+                <input type="submit" value="Submit" />
               </form>
+              <p color={'#FF0000'}>{this.state.err_mess}</p>
+              <p onClick={e=>{this.props.change_content("login")}}>
+                Have a user?
+                log in!
+            </p>
           </div>
 
     );
   }
 }
 
-
-SignupForm.propTypes = {
-  handle_signup: PropTypes.func.isRequired
-};
 
 //todo I am not a robot
 //todo confirm password

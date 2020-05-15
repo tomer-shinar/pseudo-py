@@ -71,7 +71,9 @@ ROOT_URLCONF = 'pseudo_py.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            "translateapp/templates"
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -141,3 +143,8 @@ AUTH_USER_MODEL = 'translateapp.AppUser'
 JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'pseudo_py.utils.my_jwt_response_handler'
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587

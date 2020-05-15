@@ -5,25 +5,19 @@ import math
 from abc import ABC, abstractmethod
 import json
 
+from django.utils import timezone
+
 
 class VerificationCode(models.Model):
     """class of verification code sent to users"""
-    code = models.BigIntegerField(name="code", default=0)
-    expiration = models.DateTimeField(name="expiration")
-
-    def __eq__(self, code):
-        """
-        check if the given code is equals to the verification code
-        :param code: integer
-        :return: true if equal
-        """
-        return self.code != 0 and self.code == code
+    code = models.CharField(max_length=32)
+    expiration = models.DateTimeField()
 
     def is_valid(self):
         """
         :return: true if not expired
         """
-        return self.expiration > datetime.datetime.now()
+        return self.expiration > datetime.datetime.now(tz=timezone.utc)
 
 
 class AppUser(AbstractUser):
@@ -43,27 +37,20 @@ class AppUser(AbstractUser):
     status = models.CharField(max_length=32, choices=STATUS, default="unverified", name="status")
     verification_code = models.OneToOneField(VerificationCode, on_delete=models.CASCADE, blank=True)
 
-    def verify(self, verification_code):
-        """
-        verify the user if giving the verification code
-        :return: error message if verification failed
-        """
-        raise NotImplemented()  # todo
-
     def block_if_needed(self):
         """
         check if the user need to be blocked due to bad suggestions, and if so blocks him
         """
-        raise NotImplemented()  # todo
+        raise NotImplemented()  # todo add user blocking
 
 
-class AbstractSuggestion(models.Model, ABC):
+class AbstractSuggestion(models.Model):
     """
     class for any kind of suggestion
     """
     suggester = models.ForeignKey(AppUser, related_name="suggester", on_delete=models.SET_NULL, null=True)
-    up_voters = models.ManyToManyField(AppUser, related_name="up_voters", on_delete=models.SET_NULL, null=True)
-    down_voters = models.ManyToManyField(AppUser, related_name="down_voters", on_delete=models.SET_NULL, null=True)
+    up_voters = models.ManyToManyField(AppUser, related_name="up_voters")
+    down_voters = models.ManyToManyField(AppUser, related_name="down_voters")
 
     def rating(self):
         """

@@ -1,3 +1,4 @@
+environ
 djangorestframework
 nltk
 tensorflow == 1.15.0
@@ -9,4 +10,4 @@ django == 3.0.6
 djangorestframework-jwt
 django-cors-headers
 sklearn_crfsuite
-
+django-environ
