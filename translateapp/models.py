@@ -35,7 +35,7 @@ class AppUser(AbstractUser):
     ]
     email = models.EmailField(name="email", unique=True)
     status = models.CharField(max_length=32, choices=STATUS, default="unverified", name="status")
-    verification_code = models.OneToOneField(VerificationCode, on_delete=models.CASCADE, blank=True)
+    verification_code = models.OneToOneField(VerificationCode, on_delete=models.CASCADE, null=True)
 
     def block_if_needed(self):
         """
@@ -66,7 +66,7 @@ class AbstractSuggestion(models.Model):
         calculate how much this sample should impact
         :return: positive integer
         """
-        votes = len(self.get_down_votes()) + len(self.get_up_votes())
+        votes = len(self.get_down_votes()) + len(self.get_up_votes()) + 2  # +2 for the normalization
         return self.rating() * math.log2(votes)
 
     def to_consider(self):
@@ -132,7 +132,8 @@ class G2GSuggestion(AbstractSuggestion):
     gen_python = models.CharField(max_length=200, name="gen_python")
 
     def get_sample(self):
-        return self.gen_pseudo, self.gen_python, self.impact()
+        print(self.gen_pseudo)
+        return json.loads(self.gen_pseudo), json.loads(self.gen_python), self.impact()
 
     def __eq__(self, other):
         return self.gen_pseudo == other.gen_pseudo and self.gen_python == other.gen_python

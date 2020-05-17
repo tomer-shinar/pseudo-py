@@ -4,5 +4,7 @@ from translateapp import views
 urlpatterns = [
     path('translate', views.translate, name='translate'),
     path('current_user/', views.current_user),
-    path('users/', views.UserList.as_view())
+    path('users/', views.UserList.as_view()),
+    path('upvote/', views.up_vote),
+    path('suggest/', views.suggest)
 ]

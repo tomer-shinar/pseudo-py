@@ -34,20 +34,20 @@ export class SignupForm extends React.Component {
       };
     axios({
         url: '/users/',
-      method: 'POST',
-      headers: {
+        method: 'POST',
+        headers: {
         'Content-Type': 'application/json',
-      },
-      data: data
+        },
+        data: data
     })
-      .then(response => {
-          localStorage.setItem('token', response.data.token);
-          this.props.notify_signup(this.state.username);
-      })
-      .catch(error => {
-          console.log(JSON.stringify(error.response.data));
-          this.setState({err_mess: error.response.data});
-      });
+        .then(response => {
+            localStorage.setItem('token', response.data.token);
+            this.props.notify_signup(this.state.username);
+        })
+        .catch(error => {
+            console.log(JSON.stringify(error.response.data));
+            this.setState({err_mess: error.response.data});
+        });
   }
 
   render() {

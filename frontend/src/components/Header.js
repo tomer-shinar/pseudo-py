@@ -16,6 +16,20 @@ export class Header extends React.Component {
         this.handle_logout = this.handle_logout.bind(this);
     }
 
+    componentDidMount() {
+    if (this.state.logged_in) {
+      fetch('current_user/', {
+        headers: {
+          Authorization: `JWT ${localStorage.getItem('token')}`
+        }
+      })
+        .then(res => res.json())
+        .then(json => {
+          this.setState({ username: json.username });
+        });
+    }
+  }
+
     notify_logged(username) {
         this.props.notify_log(true);
         this.setState({logged_in: true, username:username});

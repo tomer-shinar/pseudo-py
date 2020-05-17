@@ -11,14 +11,12 @@ from django.utils import timezone
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = AppUser
         fields = ('username', 'email', 'status')
 
 
 class UserSerializerWithToken(serializers.ModelSerializer):
-
     token = serializers.SerializerMethodField()
     password = serializers.CharField(write_only=True)
 
@@ -34,7 +32,7 @@ class UserSerializerWithToken(serializers.ModelSerializer):
         password = validated_data.pop('password', None)
         # todo email verification
         verification_code = self.send_email_verification(validated_data["email"])
-        instance = self.Meta.model(verification_code=verification_code, status=AppUser.UNVERIFIED, **validated_data)
+        instance = self.Meta.model(verification_code=verification_code, status=AppUser.APPROVED, **validated_data) #todo change status
         if password is not None:
             instance.set_password(password)
         instance.save()
@@ -62,7 +60,8 @@ class UserSerializerWithToken(serializers.ModelSerializer):
         msg.attach_alternative(html_content, "text/html")
         connection.send_messages([msg])
 
-        verification_code = VerificationCode(code=token, expiration=datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(1))
+        verification_code = VerificationCode(code=token, expiration=datetime.datetime.now(tz=timezone.utc) +
+                                                                    datetime.timedelta(1))
         verification_code.save()
         return verification_code
 

@@ -27,6 +27,7 @@ export class TranslateScreen extends React.Component {
         e.preventDefault();
         axios.post(translateUrl, {"pseudo": this.state.pseudo}).then((response) => {
             this.setState({translation: JSON.parse(response.data)});
+            this.props.notify_translation(this.state.translation);
         });
     }
     render() {
@@ -37,10 +38,22 @@ export class TranslateScreen extends React.Component {
                 <PythonField commands={this.state.translation.map((tuple)=>tuple[1])}/>
             </div>
             <div style={{display: "flex", justifyContent: "center", alignItems: "center", paddingTop:50}}>
+                {this.props.display_buttons && (
+                    <div>
+                        <img src={"/static/frontend/X.jpg"} height="100" alt="" onClick={this.props.handle_suggest}/>
+                        <p>suggest new Translation</p>
+                    </div>
+                )}
                 <button onClick={this.handleTranslate} title="Translate"
                         style={{width: 300, height: 100, paddingLef: 500, backgroundColor: "#00be00"}}>
                     <div style={{ fontSize: 40 }}>Translate</div>
                 </button>
+                {this.props.display_buttons && (
+                    <div>
+                        <img src={"/static/frontend/V.png"} height="100" alt="" onClick={this.props.handle_up_vote}/>
+                        <p>Thanks</p>
+                    </div>
+                )}
             </div>
         </div>);
     }

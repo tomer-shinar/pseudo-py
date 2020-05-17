@@ -31,17 +31,19 @@ class DataSetManager:
         return [obj.get_sample() for obj in samples if obj.to_consider()]
 
     @staticmethod
-    def suggest(origin, suggestion, user):
+    def suggest(origin, suggestion, user, user_suggestion=True):
         """
         save a suggestion from user to the database
+        :param user_suggestion: trueif the user suggested, false if only up voted
         :param origin: the translation created by the model (user down votes it)
         :param suggestion: the new translation suggested by the user
-        :param user: the user suggested
+        :param user: the user suggested / up voted
         """
         origin = [t for t in origin if t[0] != '']
+        suggestion = [t for t in suggestion if t[0] != '']
         for (pseudo1, down_python), (pseudo2, up_python) in zip(origin, suggestion):
-            pseudo1 = pseudo1.strip(" ")
-            pseudo2 = pseudo1.strip(" ")
+            pseudo1 = pseudo1.strip(" ").strip("\n")
+            pseudo2 = pseudo1.strip(" ").strip("\n")
             up_python = remove_tabs(up_python)
             down_python = remove_tabs(down_python)
 
@@ -52,7 +54,7 @@ class DataSetManager:
             else:  # user didn't like the translation
                 # the down is first in case that there is good part in the down_python
                 DataSetManager.down_vote(pseudo1, down_python, up_python, user)
-                DataSetManager.up_vote(pseudo1, up_python, user, user_suggestion=True)
+                DataSetManager.up_vote(pseudo1, up_python, user, user_suggestion=user_suggestion)
 
     @staticmethod
     def up_vote(pseudo, python, voter, user_suggestion=False):
@@ -66,7 +68,7 @@ class DataSetManager:
         generic_pseudo, generic_python, pos_sample = DataSetManager.get_samples(pseudo, python, python)
         existing_sample = PosSuggestion.objects.filter(data=pos_sample)
         if existing_sample:  # found such sample
-            existing_sample.do_up_vote(voter)
+            existing_sample[0].do_up_vote(voter)
         else:  # no such sample
             if user_suggestion:
                 sample = PosSuggestion(data=pos_sample, suggester=voter)
@@ -74,10 +76,10 @@ class DataSetManager:
                 sample = PosSuggestion(data=pos_sample)
             sample.save()
 
-        existing_sample = PosSuggestion.objects.filter(models.Q(gen_python=generic_python) &
+        existing_sample = G2GSuggestion.objects.filter(models.Q(gen_python=generic_python) &
                                                        models.Q(gen_pseudo=generic_pseudo))
         if existing_sample:  # found such sample
-            existing_sample.do_up_vote(voter)
+            existing_sample[0].do_up_vote(voter)
         else:  # no such sample
             if user_suggestion:
                 sample = G2GSuggestion(gen_python=generic_python, gen_pseudo=generic_pseudo, suggester=voter)
@@ -97,12 +99,12 @@ class DataSetManager:
         generic_pseudo, generic_python, pos_sample = DataSetManager.get_samples(pseudo, python, good_python)
         existing_sample = PosSuggestion.objects.filter(data=pos_sample)
         if existing_sample:  # found such sample
-            existing_sample.do_down_vote(voter)
+            existing_sample[0].do_down_vote(voter)
 
-        existing_sample = PosSuggestion.objects.filter(models.Q(gen_python=generic_python) &
+        existing_sample = G2GSuggestion.objects.filter(models.Q(gen_python=generic_python) &
                                                        models.Q(gen_pseudo=generic_pseudo))
         if existing_sample:  # found such sample
-            existing_sample.do_down_vote(voter)
+            existing_sample[0].do_down_vote(voter)
 
 
     @staticmethod
@@ -117,8 +119,10 @@ class DataSetManager:
             """
             for each tag return the word and tag
             """
-            if isinstance(node, ast.FunctionDef) or isinstance(node, ast.Call):
+            if isinstance(node, ast.FunctionDef):
                 return node.name, "func"
+            if isinstance(node, ast.Call):
+                return node.func, "func"
             if isinstance(node, ast.Str):
                 return node.s, "str"
             if isinstance(node, ast.Num):
@@ -138,6 +142,7 @@ class DataSetManager:
         tags = {}
         for node in ast.walk(root):
             word, tag = tagger(node)
+            word = str(word)
             if word and word in pseudo:
                 tags[word] = tag
         return tags
@@ -152,10 +157,10 @@ class DataSetManager:
         :return: generic pseudo, generic python, pos sample
         """
         pos_tags = DataSetManager.extract_pos(good_python, pseudo)
-        python = TranslationModel.tokenize(sum([TranslationModel.tokenize(part) for part in
-                                                TranslationModel.split_by_strings(python)], []))
-        pseudo = TranslationModel.tokenize(sum([TranslationModel.tokenize(part) for part in
-                                                TranslationModel.split_by_strings(pseudo)], []))
+        python = sum([TranslationModel.tokenize(part) for part in
+                                                TranslationModel.split_by_strings(python)], [])
+        pseudo = sum([TranslationModel.tokenize(part) for part in
+                                                TranslationModel.split_by_strings(pseudo)], [])
         pos_sample = [(tok, pos_tags[tok] if tok in pos_tags.keys() else "") for tok in pseudo]
         c = collections.Counter()
         replacements = {}
@@ -168,7 +173,8 @@ class DataSetManager:
                     c[tag] += 1
         pseudo = [replacements[tok] if tok in replacements.keys() else tok for tok in pseudo]
         python = [replacements[tok] if tok in replacements.keys() else tok for tok in python]
-        return pseudo, python, json.dumps(pos_sample)
+        print(json.dumps(pseudo))
+        return json.dumps(pseudo), json.dumps(python), json.dumps(pos_sample)
 
 
 def remove_tabs(code):
@@ -179,5 +185,5 @@ def remove_tabs(code):
     """
     lines = code.split("\n")
     tabs = count_on_start(lines[0], TAB)
-    return [line[tabs*4:] for line in lines]
+    return "\n".join([line[tabs*4:] for line in lines])
 

@@ -11,3 +11,4 @@ djangorestframework-jwt
 django-cors-headers
 sklearn_crfsuite
 django-environ
+psycopg2

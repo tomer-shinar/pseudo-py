@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { render } from "react-dom";
 import {Header} from "./Header";
-import {TranslateScreen} from "./TranslateScreen";
+import {Content} from "./Content";
 
 class App extends Component {
   constructor(props) {
@@ -20,7 +20,7 @@ class App extends Component {
     return (
         <span>
           <Header notify_log={this.notify_log}/>
-          <TranslateScreen/>
+          <Content is_logged_in={this.state.logged_in}/>
         </span>
     )
   }

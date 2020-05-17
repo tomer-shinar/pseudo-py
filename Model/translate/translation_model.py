@@ -17,7 +17,7 @@ def count_on_start(string, sub_string):
     :return: the count
     """
     count = 0
-    while string.starts_with(sub_string):
+    while string.startswith(sub_string):
         count += 1
         string = string[len(sub_string):]
     return count
@@ -68,7 +68,7 @@ class TranslationModel(AbstractModel):
             replacements = self.pos_model.evaluate(tokens)
             generic_pseudo = [replacements[t] if t in replacements.keys() else t for t in tokens]
             generic_python = self.g2g_model.evaluate(generic_pseudo)
-            python_tokens = [replacements.invers[t] if t in replacements.values() else t for t in generic_python]
+            python_tokens = [replacements.inverse[t] if t in replacements.values() else t for t in generic_python]
             python_code = "".join(python_tokens)
             if not self.is_valid(python_code):
                 raise TranslationException("wrong syntax for generated python code")
@@ -94,6 +94,7 @@ class TranslationModel(AbstractModel):
         :return: true if legal python code
         """
         try:
+            print(python_code)
             ast.parse(python_code)
             return True  # parse succeed
         except SyntaxError:

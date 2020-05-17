@@ -23,21 +23,21 @@ class Gen2GenBuilder(AbstractModelBuilder):
         # Vectorize the data.
         input_texts = []
         target_texts = []
+        sample_weight = []
         input_words = {EOS, SOS, UNK}
         target_words = {SOS, EOS}
-        samples_weight = np.zeros(len(data_set))
 
-        for (input_text, target_text, w), i in enumerate(data_set):
+        for input_text, target_text, w in data_set:
             target_text = [SOS] + target_text + [EOS]
             input_texts.append(input_text)
             target_texts.append(target_text)
+            sample_weight.append(w)
             for word in input_text:
                 if word not in input_words:
                     input_words.add(word)
             for word in target_text:
                 if word not in target_words:
                     target_words.add(word)
-            samples_weight[i] = w
 
         input_characters = sorted(list(input_words))
         target_characters = sorted(list(target_words))
@@ -80,68 +80,34 @@ class Gen2GenBuilder(AbstractModelBuilder):
                     decoder_target_data[i, t - 1, target_word_to_index[word]] = 1.
             decoder_input_data[i, t + 1:, target_word_to_index[EOS]] = 1.
             decoder_target_data[i, t:, target_word_to_index[EOS]] = 1.
-
         # Define an input sequence and process it.
         encoder_inputs = Input(shape=(None, num_encoder_tokens))
-        #encoder = LSTM(latent_dim, return_state=True)
-        encoder_lstm1 = LSTM(latent_dim, name='encoder_lstm1',
-                             return_sequences=True, return_state=True)
-        encoder_lstm2 = LSTM(latent_dim, name='encoder_lstm2',
-                             return_sequences=True, return_state=True)
-        encoder_lstm3 = LSTM(latent_dim, name='encoder_lstm3',
-                             return_sequences=False, return_state=True)
-        # Connect all the LSTM-layers.
-        x = encoder_inputs
-        x, _, _ = encoder_lstm1(x)
-        x, _, _ = encoder_lstm2(x)
-        encoder_outputs, state_h, state_c = encoder_lstm3(x)
+        encoder = LSTM(latent_dim, return_state=True)
+        encoder_outputs, state_h, state_c = encoder(encoder_inputs)
         # We discard `encoder_outputs` and only keep the states.
         encoder_states = [state_h, state_c]
 
         # Set up the decoder, using `encoder_states` as initial state.
-        decoder_initial_state_h1 = Input(shape=(latent_dim,),
-                                         name='decoder_initial_state_h1')
-
-        decoder_initial_state_c1 = Input(shape=(latent_dim,),
-                                         name='decoder_initial_state_c1')
-
-        decoder_initial_state_h2 = Input(shape=(latent_dim,),
-                                         name='decoder_initial_state_h2')
-
-        decoder_initial_state_c2 = Input(shape=(latent_dim,),
-                                         name='decoder_initial_state_c2')
         decoder_inputs = Input(shape=(None, num_decoder_tokens))
         # We set up our decoder to return full output sequences,
         # and to return internal states as well. We don't use the
         # return states in the training model, but we will use them in inference.
-        #decoder_lstm = LSTM(latent_dim, return_sequences=True, return_state=True)
-        decoder_lstm1 = LSTM(latent_dim, name='decoder_lstm1',
-                             return_sequences=True, return_state=True)
-        decoder_lstm2 = LSTM(latent_dim, name='decoder_lstm2',
-                             return_sequences=True, return_state=True)
-
-        decoder_dense = Dense(
-            num_decoder_tokens, activation='softmax', name="decoder_output")
-        # connect the decoder for training (initial state = encoder_state)
-        # I feed the encoder_states as inital input to both decoding lstm layers
-        x = decoder_inputs
-        x, h1, c1 = decoder_lstm1(x, initial_state=encoder_states)
-        # I tried to pass [h1, c1] as initial states in line below, but that result in rubbish
-        x, _, _ = decoder_lstm2(x, initial_state=encoder_states)
-        decoder_output = decoder_dense(x)
+        decoder_lstm = LSTM(latent_dim, return_sequences=True, return_state=True)
+        decoder_outputs, _, _ = decoder_lstm(decoder_inputs,
+                                             initial_state=encoder_states)
+        decoder_dense = Dense(num_decoder_tokens, activation='softmax')
+        decoder_outputs = decoder_dense(decoder_outputs)
 
         # Define the model that will turn
         # `encoder_input_data` & `decoder_input_data` into `decoder_target_data`
-        model_train = Model([encoder_inputs, decoder_inputs], decoder_output)
-        model_encoder = Model(inputs=encoder_inputs, outputs=encoder_states)
-
+        model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
         model.compile(optimizer='rmsprop', loss='categorical_crossentropy',
                       metrics=['accuracy'])
         model.fit([encoder_input_data, decoder_input_data], decoder_target_data,
                   batch_size=batch_size,
                   epochs=epochs,
                   validation_split=0.2,
-                  samples_weight=samples_weight)
+                  sample_weight=np.array(sample_weight))
         return Gen2GenModel(model, source_word_to_index, target_word_to_index, max_encoder_seq_length,
                             max_decoder_seq_length, num_encoder_tokens, num_decoder_tokens)
 
