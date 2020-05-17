@@ -1,6 +1,7 @@
 import React from "react";
 import Popup from "reactjs-popup";
 import {UserPopUp} from "./UserPopUp";
+import axios from "axios";
 
 /**
  * class for the header contains the logo and log in / sign out option
@@ -10,7 +11,7 @@ export class Header extends React.Component {
         super(props);
         this.state = {
             logged_in: !!localStorage.getItem('token'),
-            username: ''
+            username: '',
         };
         this.notify_logged = this.notify_logged.bind(this);
         this.handle_logout = this.handle_logout.bind(this);
@@ -23,21 +24,30 @@ export class Header extends React.Component {
           Authorization: `JWT ${localStorage.getItem('token')}`
         }
       })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok)
+                throw new Error();
+            return res.json();
+        })
         .then(json => {
-          this.setState({ username: json.username });
-        });
+          this.setState({ username: json.username});
+          this.props.notify_log(true, json.username, json.password);
+        })
+         .catch(error =>{
+             this.handle_logout()
+         });
     }
   }
 
-    notify_logged(username) {
-        this.props.notify_log(true);
+
+    notify_logged(username, password) {
+        this.props.notify_log(true, username, password);
         this.setState({logged_in: true, username:username});
     }
 
-    handle_logout(e) {
+    handle_logout() {
         localStorage.removeItem('token');
-        this.props.notify_log(false);
+        this.props.notify_log(false, "", "");
         this.setState({logged_in: false, username: ""})
     }
 

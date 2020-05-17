@@ -66,7 +66,10 @@ export class Content extends React.Component {
                 this.setState({last_action: "", message: "Thank you for up voting"})
             })
             .catch(error => {
-                this.setState({message: error.response.data});
+                if (error.response.status === 403)
+                    this.notify_message(error.response.data);
+                if (error.response.status === 401)
+                    this.notify_message("It''s been a while since you logged in, please sign out and log in again");
             });
     }
 

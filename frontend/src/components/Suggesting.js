@@ -59,7 +59,10 @@ export class Suggesting extends React.Component {
                 this.props.notify_suggested();
             })
             .catch(error => {
-                this.props.notify_message(error.response.data);
+                if (error.response.status === 403)
+                    this.props.notify_message(error.response.data);
+                if (error.response.status === 401)
+                    this.props.notify_message("It's been a while since you logged in, please sign out and log in again");
             });
     }
 

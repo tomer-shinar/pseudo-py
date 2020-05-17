@@ -35,7 +35,7 @@ export class LoginForm extends React.Component {
     })
       .then(response => {
           localStorage.setItem('token', response.data.token);
-          this.props.notify_login(this.state.username)
+          this.props.notify_login(this.state.username, this.state.password)
       })
       .catch(error => {
           this.setState({been_failed: true})
