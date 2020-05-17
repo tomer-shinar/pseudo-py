@@ -4,7 +4,7 @@ import re
 import autopep8
 import ast
 
-CODE_VERSION = 2
+CODE_VERSION = 3
 
 TAB = " " * 4
 
@@ -69,12 +69,26 @@ class TranslationModel(AbstractModel):
             generic_pseudo = [replacements[t] if t in replacements.keys() else t for t in tokens]
             generic_python = self.g2g_model.evaluate(generic_pseudo)
             python_tokens = [replacements.inverse[t] if t in replacements.values() else t for t in generic_python]
-            python_code = "".join(python_tokens)
+            python_code = self.join_tokens(python_tokens)
             if not self.is_valid(python_code):
                 raise TranslationException("wrong syntax for generated python code")
             return self.add_tabs(autopep8.fix_code(python_code), tabs)
         except TranslationException:
             return original_command
+
+    @staticmethod
+    def join_tokens(tokens):
+        """
+        join the tokens to one string, adding space only after last char that is letter, digit or _
+        :param tokens: list of tokens
+        :return: string joining the tokens
+        """
+        s = tokens[0]
+        for token in tokens[1:]:
+            if s[-1].isalpha() or s[-1].isdigit() or s[-1] == "_":
+                s += " "
+            s += token
+        return s
 
     @staticmethod
     def add_tabs(code, count):

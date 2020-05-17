@@ -55,6 +55,9 @@ class Gen2GenModel(AbstractModel):
         :return: generic python command
         """
         input_vec = np.zeros((1, self.max_encoder_seq_length, self.num_encoder_tokens), dtype='float32')
+        if len(input_data) > self.max_encoder_seq_length:
+            # data is too long and need to be shorten
+            input_data = input_data[:self.max_encoder_seq_length]
         for t, word in enumerate(input_data):
             input_vec[0, t, self.source_word_to_index[word if word in self.source_word_to_index.keys() else UNK]] = 1.
         # Encode the input as state vectors.

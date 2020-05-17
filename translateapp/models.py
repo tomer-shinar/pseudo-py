@@ -100,7 +100,7 @@ class AbstractSuggestion(models.Model):
         add voter to up voters
         :param voter: the user voting
         """
-        if self.suggester.username == voter.username or self.up_voters.filter(username=voter.username):
+        if self.suggester is None or self.suggester.username == voter.username or self.up_voters.filter(username=voter.username):
             # user suggested or already up voted
             return
         if self.down_voters.filter(username=voter.username):
@@ -111,7 +111,7 @@ class AbstractSuggestion(models.Model):
 
     def do_down_vote(self, voter):
         """
-        add voter to up voters
+        add voter to down voters
         :param voter: the user voting
         """
         if self.down_voters.filter(username=voter.username):
