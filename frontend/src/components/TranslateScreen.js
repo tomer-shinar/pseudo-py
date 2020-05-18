@@ -43,21 +43,21 @@ export class TranslateScreen extends React.Component {
                 <PseudoField onChange={this.handleChange}/>
                 <PythonField display_spinner={this.state.currentlyTranslating} commands={this.state.translation.map((tuple)=>tuple[1])}/>
             </div>
-            <div style={{display: "flex", justifyContent: "center", alignItems: "center", paddingTop:50}}>
+            <div style={{display: "flex", justifyContent: "center", alignItems: "center", paddingTop:20}}>
                 {this.props.display_buttons && (
-                    <div>
-                        <img src={"/static/frontend/X.jpg"} height="100" alt="" onClick={this.props.handle_suggest}/>
-                        <p>suggest new Translation</p>
+                    <div style={{paddingRight: 100}}>
+                        <img src={"/static/frontend/X.png"} height="90" alt="" onClick={this.props.handle_suggest}/>
+                        <p style={{justifyContent: "center", alignItems: "center"}}>suggest new Translation</p>
                     </div>
                 )}
                 <button onClick={this.handleTranslate} title="Translate"
-                        style={{width: 300, height: 100, paddingLef: 500, backgroundColor: "#00be00"}}>
+                        style={{width: 300, height: 100, backgroundColor: "#00be00"}}>
                     <div style={{ fontSize: 40 }}>Translate</div>
                 </button>
                 {this.props.display_buttons && (
-                    <div>
-                        <img src={"/static/frontend/V.png"} height="100" alt="" onClick={this.props.handle_up_vote}/>
-                        <p>Thanks</p>
+                    <div style={{paddingLeft: 100}}>
+                        <img src={"/static/frontend/V.jpeg"} height="90" alt="" onClick={this.props.handle_up_vote}/>
+                        <p style={{justifyContent: "center", alignItems: "center"}}>Thanks</p>
                     </div>
                 )}
             </div>

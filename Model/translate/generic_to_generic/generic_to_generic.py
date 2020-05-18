@@ -10,8 +10,8 @@ SOS = "<SOS>"
 EOS = "<EOS>"
 UNK = "<UNK>"
 batch_size = 64  # Batch size for training.
-epochs = 100  # Number of epochs to train for.
-latent_dim = 512  # Latent dimensionality of the encoding space.
+epochs = 200  # Number of epochs to train for.
+latent_dim = 1024  # Latent dimensionality of the encoding space.
 
 
 class Gen2GenModel(AbstractModel):

@@ -78,10 +78,13 @@ export class Header extends React.Component {
             );
         }
         return (
-            <div style={{backgroundColor: '#26d00b', display: 'flex'}}>
-                <img src={"/static/frontend/logo.png"} width="600" height="125" alt=""/>
-                {this.state.logged_in && <p>Hello {this.state.username}</p>}
-                {this.state.logged_in && <p onClick={this.handle_logout}>sign out</p>}
+            <div style={{backgroundColor: '#26d00b', display: 'flex', alignItems: "center"}}>
+                <img src={"/static/frontend/logo.png"} width="600" height="125" alt=""
+                     style={{paddingLeft: 200, paddingRight: 100}}/>
+                {this.state.logged_in && <div>
+                    <p>Hello {this.state.username}</p>
+                    <p onClick={this.handle_logout}>sign out</p>
+                </div>}
                 <Popup
                     trigger={<p> {this.state.logged_in? "": "login"} </p>}
                     modal

@@ -10,7 +10,7 @@ export class PythonField extends React.Component {
             </h3>
             <div style={{border: '2px solid black', height: 505, overflow: 'auto', paddingTop:20}}>
                 <ol>
-                    {this.props.commands.map((command) => <li>{command}</li>)}
+                    {this.props.commands.map((command) => <li><div style={{ whiteSpace: 'pre-wrap' }}>{command}</div></li>)}
                 </ol>
                 {this.props.display_spinner &&
                 <div style={{display: "flex", alignItems: "center", justifyContent: "center"}}>

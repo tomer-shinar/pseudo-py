@@ -105,7 +105,7 @@ export class Content extends React.Component {
         }
         return <div>
             {screen}
-            <p>{this.state.message}</p>
+            <div style={{justifyContent: "center", alignItems: "center", display:"flex"}} >{this.state.message}</div>
         </div>
     }
 }
