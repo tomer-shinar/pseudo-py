@@ -3,6 +3,7 @@ import axios from "axios";
 import {translateUrl} from "../constants";
 import {PseudoField} from "./pseudoField";
 import {PythonField} from "./pythonField";
+import { trackPromise } from 'react-promise-tracker';
 
 
 export class TranslateScreen extends React.Component {
@@ -19,15 +20,20 @@ export class TranslateScreen extends React.Component {
     handleChange(e) {
         this.setState({pseudo: e.target.value});
     }
+
     handleTranslate(e) {
         /**
          * handle the event of clicking translate
          */
         this.setState({currentlyTranslating: true});
         e.preventDefault();
-        axios.post(translateUrl, {"pseudo": this.state.pseudo}).then((response) => {
-            this.setState({translation: JSON.parse(response.data)});
+        this.setState({currentlyTranslating: true});
+        axios.post(translateUrl, {"pseudo": this.state.pseudo})
+         .then((response) => {
+            this.setState({translation: JSON.parse(response.data), currentlyTranslating: false});
             this.props.notify_translation(this.state.translation);
+        }).catch(error => {
+            this.setState({currentlyTranslating: false});
         });
     }
     render() {
@@ -35,7 +41,7 @@ export class TranslateScreen extends React.Component {
         <div>
             <div style={{display:'flex'}}>
                 <PseudoField onChange={this.handleChange}/>
-                <PythonField commands={this.state.translation.map((tuple)=>tuple[1])}/>
+                <PythonField display_spinner={this.state.currentlyTranslating} commands={this.state.translation.map((tuple)=>tuple[1])}/>
             </div>
             <div style={{display: "flex", justifyContent: "center", alignItems: "center", paddingTop:50}}>
                 {this.props.display_buttons && (
