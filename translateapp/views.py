@@ -13,9 +13,13 @@ from .dataset_manager import DataSetManager
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def translate(request):
-    translator = Model.translate.TranslationModeBuilder().load(os.path.join("saved-files"))
-    translation = translator.evaluate(request.data["pseudo"])
-    return Response(json.dumps(translation))
+    try:
+        translator = Model.translate.TranslationModeBuilder().load(os.path.join("saved-files"))
+        translation = translator.evaluate(request.data["pseudo"])
+        return Response(json.dumps(translation))
+    except FileNotFoundError:
+        # if the is no model to load returns empty translation so that user can
+        return Response(json.dumps([[pseudo, ""] for pseudo in request.data["pseudo"]]))
 
 
 @api_view(['GET'])
