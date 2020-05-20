@@ -1,6 +1,4 @@
-from Model.translate.generic_to_generic import *
-from Model.translate.pos_tagging import *
-from Model.translate import *
+from . import *
 import os
 
 

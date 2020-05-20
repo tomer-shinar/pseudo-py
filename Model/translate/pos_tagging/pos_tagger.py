@@ -1,5 +1,5 @@
-from Model.translate import AbstractModel
-from Model.translate.pos_tagging import features
+from .. import AbstractModel
+from . import features
 import collections
 from bidict import bidict
 import pickle

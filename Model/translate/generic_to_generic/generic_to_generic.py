@@ -2,16 +2,17 @@ import numpy as np
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Input
 import os
-from Model.translate import AbstractModel
+from .. import AbstractModel
 import json
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 SOS = "<SOS>"
 EOS = "<EOS>"
 UNK = "<UNK>"
-batch_size = 64  # Batch size for training.
+batch_size = 32  # Batch size for training.
 epochs = 200  # Number of epochs to train for.
-latent_dim = 1024  # Latent dimensionality of the encoding space.
+latent_dim = 526  # Latent dimensionality of the encoding space.
 
 
 class Gen2GenModel(AbstractModel):

@@ -1,2 +1,1 @@
-import Model.translate
-import Model.database
+from .translate import *

@@ -43,8 +43,8 @@ class DataSetManager:
         suggestion = [t for t in suggestion if t[0] != '']
         for (pseudo1, down_python), (pseudo2, up_python) in zip(origin, suggestion):
             pseudo1 = pseudo1.strip(" ").strip("\n")
-            pseudo2 = pseudo1.strip(" ").strip("\n")
-            up_python = remove_tabs(up_python)
+            pseudo2 = pseudo1.strip(" ").strip("\n").strip("\n")
+            up_python = remove_tabs(up_python).strip("\n")
             down_python = remove_tabs(down_python)
 
             if pseudo1 != pseudo2 or not TranslationModel.is_valid(up_python):  # wrong input
@@ -122,7 +122,7 @@ class DataSetManager:
             if isinstance(node, ast.FunctionDef):
                 return node.name, "func"
             if isinstance(node, ast.Call):
-                return node.func, "func"
+                return node.func.id, "func"
             if isinstance(node, ast.Str):
                 return node.s, "str"
             if isinstance(node, ast.Num):
@@ -135,16 +135,26 @@ class DataSetManager:
                 return node.name, "class"
             return None, None
 
-        try:
-            root = ast.parse(python)
-        except SyntaxError:
-            root = ast.parse(python + "\n    pass")  # will work because is valid
+        if_addition = "if False:\n    pass\n"  # if to add before else to make is parsable
+        options = [python, TranslationModel.add_pass(python), if_addition + python,
+                   if_addition + TranslationModel.add_pass(python)]
+        for option in options:
+            if TranslationModel.is_parsable(option):
+                root = ast.parse(option)
+                break
+        else:  # shouldn't get here because the was a check before
+            raise SyntaxError()
+
         tags = {}
         for node in ast.walk(root):
             word, tag = tagger(node)
             word = str(word)
-            if word and word in pseudo:
-                tags[word] = tag
+            if word and word in pseudo and not word in tags.keys():
+                if tag == "str":
+                    tags['"{}"'.format(word)] = tag
+                    tags["'{}'".format(word)] = tag
+                else:
+                    tags[word] = tag
         return tags
 
     @staticmethod

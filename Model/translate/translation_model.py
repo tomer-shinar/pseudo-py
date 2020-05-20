@@ -1,4 +1,4 @@
-from Model.translate import *
+from . import *
 import os
 import re
 import autopep8
@@ -107,16 +107,26 @@ class TranslationModel(AbstractModel):
         :param python_code: python code
         :return: true if legal python code
         """
+        if_addition = "if False:\n    pass\n"  # if to add before else to make is parsable
+        options = [python_code, TranslationModel.add_pass(python_code), if_addition + python_code,
+                   if_addition + TranslationModel.add_pass(python_code)]
+        for op in options:
+            if TranslationModel.is_parsable(op):
+                return True
+        return False
+
+    @staticmethod
+    def is_parsable(code):
+        """
+        check if the code can be parsed
+        :param code: python code
+        :return: true if can be parsed
+        """
         try:
-            print(python_code)
-            ast.parse(python_code)
-            return True  # parse succeed
+            ast.parse(code)
+            return True
         except SyntaxError:
-            try:
-                ast.parse(TranslationModel.add_pass(python_code))
-                return True  # parse succeed (there should be continue)
-            except SyntaxError:
-                return False
+            return False
 
     @staticmethod
     def add_pass(code):

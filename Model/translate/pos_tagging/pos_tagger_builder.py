@@ -1,10 +1,10 @@
-from Model.translate.pos_tagging import *
-from Model.translate import *
+from . import *
+from .. import *
 from nltk.tag.util import untag
 from sklearn_crfsuite import CRF
 import pickle
 
-from Model.translate.pos_tagging import features
+from . import features
 
 
 def transform_to_dataset(tagged_sentences):

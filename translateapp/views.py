@@ -13,6 +13,7 @@ from .dataset_manager import DataSetManager
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def translate(request):
+    print("started")
     try:
         translator = Model.translate.TranslationModeBuilder().load(os.path.join("saved-files"))
         translation = translator.evaluate(request.data["pseudo"])

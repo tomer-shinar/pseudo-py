@@ -1,11 +1,12 @@
-from Model.translate import *
-from Model.translate.generic_to_generic import *
+from .. import *
+from .generic_to_generic import *
 from random import shuffle
 import json
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Input, LSTM, Dense
 import numpy as np
 from bidict import bidict
+import os
 
 
 class Gen2GenBuilder(AbstractModelBuilder):

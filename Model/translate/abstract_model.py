@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import datetime
-from Model.logs.observable import Observable
+from ..logs.observable import Observable
 
 
 class AbstractModel(ABC, Observable):
