@@ -6,7 +6,7 @@ keras
 numpy == 1.18.4
 bidict
 autopep8
-django == 3.0.6
+django == 3.1.9
 djangorestframework-jwt
 django-cors-headers
 sklearn_crfsuite
