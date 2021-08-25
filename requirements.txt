@@ -1,7 +1,7 @@
 environ
 djangorestframework
 nltk
-tensorflow == 1.15.0
+tensorflow == 2.5.1
 keras
 numpy == 1.18.4
 bidict
